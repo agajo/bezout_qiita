@@ -9,7 +9,7 @@ class MyApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return MaterialApp(
       home: Scaffold(
-          appBar: AppBar(),
+          appBar: AppBar(title: const Text("Bézout's identity")),
           body: DefaultTextStyle(
             style: TextStyle(fontSize: 30, color: Colors.black),
             child: Column(
