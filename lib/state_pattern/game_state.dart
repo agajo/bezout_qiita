@@ -12,7 +12,6 @@ abstract class GameState with _$GameState {
     @Default(0) int y,
     @Default(0) int target,
     @Default(0) int clearedCount,
-    @Default(0) int pressedCount,
     @Default(false) bool justCleared,
   }) = _GameState;
 }
