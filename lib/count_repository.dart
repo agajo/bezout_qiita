@@ -8,7 +8,15 @@ class CountRepository {
   }
   static const clearedCountKey = 'cleared_count';
   SharedPreferences _sharedPrefs;
-  int load() => _sharedPrefs.getInt(clearedCountKey);
+  Future<int> load() async {
+    if (_sharedPrefs != null) {
+      return _sharedPrefs.getInt(clearedCountKey) ?? 0;
+    } else {
+      return SharedPreferences.getInstance()
+          .then((value) => value.getInt(clearedCountKey) ?? 0);
+    }
+  }
+
   void save(int value) {
     _sharedPrefs.setInt(clearedCountKey, value);
   }

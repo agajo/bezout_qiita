@@ -1,7 +1,12 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 
+import 'game_notifier.dart';
+
 void main() => runApp(const ProviderScope(child: MyApp()));
+
+final gameNotifierProvider = ChangeNotifierProvider((ref) => GameNotifier());
 
 class MyApp extends StatelessWidget {
   const MyApp();
@@ -11,18 +16,18 @@ class MyApp extends StatelessWidget {
       home: Scaffold(
           appBar: AppBar(title: const Text("Bézout's identity")),
           body: DefaultTextStyle(
-            style: TextStyle(fontSize: 30, color: Colors.black),
+            style: const TextStyle(fontSize: 30, color: Colors.black),
             child: Column(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
                 const Question(),
-                const SizedBox(height: 30),
+                const ClearedMessage(),
                 Row(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: const [UpDown(isX: true), UpDown(isX: false)],
                 ),
                 const SizedBox(height: 30),
-                Text("クリア回数: 3", style: TextStyle(fontSize: 25)),
+                const ClearedCount(),
               ],
             ),
           )),
@@ -30,58 +35,109 @@ class MyApp extends StatelessWidget {
   }
 }
 
-class Question extends StatelessWidget {
+class ClearedCount extends HookWidget {
+  const ClearedCount({
+    Key key,
+  }) : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
+    final clearedCount = useProvider(gameNotifierProvider).clearedCount;
+    return Text('クリア数: $clearedCount', style: const TextStyle(fontSize: 25));
+  }
+}
+
+class Question extends HookWidget {
   const Question();
   @override
   Widget build(BuildContext context) {
-    const a = 11;
-    const b = 7;
-    const x = 3;
-    const y = 4;
-    const target = 61;
+    final gameNotifier = useProvider(gameNotifierProvider);
+    final a = gameNotifier.a;
+    final b = gameNotifier.b;
+    final x = gameNotifier.x;
+    final y = gameNotifier.y;
+    final target = gameNotifier.target;
     return Row(
       mainAxisAlignment: MainAxisAlignment.spaceEvenly,
       children: [
         Text('$a'),
-        Text('x'),
+        const Text('x'),
         Container(
-            padding: EdgeInsets.all(3),
+            padding: const EdgeInsets.all(3),
             decoration:
                 BoxDecoration(border: Border.all(color: Colors.red, width: 3)),
             child: Text(
               '$x',
-              style: TextStyle(color: Colors.red),
+              style: const TextStyle(color: Colors.red),
             )),
-        Text('+'),
+        const Text('+'),
         Text('$b'),
-        Text('x'),
+        const Text('x'),
         Container(
-            padding: EdgeInsets.all(3),
+            padding: const EdgeInsets.all(3),
             decoration:
                 BoxDecoration(border: Border.all(color: Colors.blue, width: 3)),
             child: Text(
               '$y',
-              style: TextStyle(color: Colors.blue),
+              style: const TextStyle(color: Colors.blue),
             )),
-        Text('='),
+        const Text('='),
         Text('$target'),
       ],
     );
   }
 }
 
-class UpDown extends StatelessWidget {
+class UpDown extends HookWidget {
   const UpDown({@required this.isX});
   final bool isX;
   @override
   Widget build(BuildContext context) {
+    final justCleared = useProvider(gameNotifierProvider).justCleared;
     final color = isX ? Colors.red : Colors.blue;
     return Column(
       children: [
-        Icon(Icons.arrow_upward, size: 60, color: color),
-        SizedBox(width: 165),
-        Icon(Icons.arrow_downward, size: 60, color: color),
+        IconButton(
+          iconSize: 60,
+          icon: Icon(Icons.arrow_upward, color: color),
+          onPressed: justCleared
+              ? null
+              : () {
+                  gameNotifierProvider
+                      .read(context)
+                      .changeXY(isX: isX, value: 1);
+                },
+        ),
+        const SizedBox(width: 165),
+        IconButton(
+          iconSize: 60,
+          icon: Icon(Icons.arrow_downward, color: color),
+          onPressed: justCleared
+              ? null
+              : () {
+                  gameNotifierProvider
+                      .read(context)
+                      .changeXY(isX: isX, value: -1);
+                },
+        ),
       ],
+    );
+  }
+}
+
+class ClearedMessage extends HookWidget {
+  const ClearedMessage();
+  @override
+  Widget build(BuildContext context) {
+    return SizedBox(
+      height: 30,
+      child: Center(
+          child: useProvider(gameNotifierProvider).justCleared
+              ? const Text(
+                  'Cleared!',
+                  style: TextStyle(fontSize: 25, color: Colors.amber),
+                )
+              : Container()),
     );
   }
 }
