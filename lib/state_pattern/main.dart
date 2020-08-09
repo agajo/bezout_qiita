@@ -6,8 +6,7 @@ import 'game_controller.dart';
 
 void main() => runApp(const ProviderScope(child: MyApp()));
 
-final gameControllerProvider =
-    ChangeNotifierProvider((ref) => GameController());
+final gameControllerProvider = StateNotifierProvider((ref) => GameController());
 
 class MyApp extends StatelessWidget {
   const MyApp();
@@ -43,7 +42,7 @@ class ClearedCount extends HookWidget {
 
   @override
   Widget build(BuildContext context) {
-    final clearedCount = useProvider(gameNotifierProvider).clearedCount;
+    final clearedCount = useProvider(gameControllerProvider.state).clearedCount;
     return Text('クリア数: $clearedCount', style: const TextStyle(fontSize: 25));
   }
 }
@@ -52,12 +51,12 @@ class Question extends HookWidget {
   const Question();
   @override
   Widget build(BuildContext context) {
-    final gameNotifier = useProvider(gameNotifierProvider);
-    final a = gameNotifier.a;
-    final b = gameNotifier.b;
-    final x = gameNotifier.x;
-    final y = gameNotifier.y;
-    final target = gameNotifier.target;
+    final gameState = useProvider(gameControllerProvider.state);
+    final a = gameState.a;
+    final b = gameState.b;
+    final x = gameState.x;
+    final y = gameState.y;
+    final target = gameState.target;
     return Row(
       mainAxisAlignment: MainAxisAlignment.spaceEvenly,
       children: [
@@ -94,7 +93,7 @@ class UpDown extends HookWidget {
   final bool isX;
   @override
   Widget build(BuildContext context) {
-    final justCleared = useProvider(gameNotifierProvider).justCleared;
+    final justCleared = useProvider(gameControllerProvider.state).justCleared;
     final color = isX ? Colors.red : Colors.blue;
     return Column(
       children: [
@@ -104,7 +103,7 @@ class UpDown extends HookWidget {
           onPressed: justCleared
               ? null
               : () {
-                  gameNotifierProvider
+                  gameControllerProvider
                       .read(context)
                       .changeXY(isX: isX, value: 1);
                 },
@@ -116,7 +115,7 @@ class UpDown extends HookWidget {
           onPressed: justCleared
               ? null
               : () {
-                  gameNotifierProvider
+                  gameControllerProvider
                       .read(context)
                       .changeXY(isX: isX, value: -1);
                 },
@@ -133,7 +132,7 @@ class ClearedMessage extends HookWidget {
     return SizedBox(
       height: 30,
       child: Center(
-          child: useProvider(gameNotifierProvider).justCleared
+          child: useProvider(gameControllerProvider.state).justCleared
               ? const Text(
                   'Cleared!',
                   style: TextStyle(fontSize: 25, color: Colors.amber),

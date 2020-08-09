@@ -47,9 +47,9 @@ class GameController extends StateNotifier<GameState> {
 
   void changeXY({@required bool isX, @required int value}) {
     if (isX) {
-      state = state.copyWith(x: state.x + 1);
+      state = state.copyWith(x: state.x + value);
     } else {
-      state = state.copyWith(y: state.y + 1);
+      state = state.copyWith(y: state.y + value);
     }
     ++pressedCount;
     checkCleared();
